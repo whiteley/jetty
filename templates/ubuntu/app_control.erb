@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e
+
+source <%= @data_path %>/shared/config/env
+
+cmd="/usr/bin/java"
+args="-jar <%= @jetty_runner %> --port <%= @port %> <%= @war %>"
+options="--startas $cmd --make-pidfile --pidfile <%= @data_path %>/shared/jetty_runner.pid"
+
+
+case "$1" in
+  status)
+    echo "Not implemented"
+  ;;
+  start)
+    echo "Starting..."
+    start-stop-daemon --start $options --background -- $args
+    echo "Complete"
+  ;;
+  stop)
+    echo "Stopping..."
+    start-stop-daemon --stop $options
+    echo "Complete"
+  ;;
+  reload | restart | deploy)
+    echo "Stopping..."
+    start-stop-daemon --stop $options --oknodo --retry 30
+    sleep 1
+    echo "Starting..."
+    start-stop-daemon --start $options --background -- $args
+    echo "Complete"
+  ;;
+  *)
+    echo "Usage: $0 {start|stop|reload|restart|deploy}"
+    exit 1
+  ;;
+esac
+
+

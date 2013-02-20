@@ -1,0 +1,27 @@
+upstream <%= @app_name %>_http {
+  server 127.0.0.1:<%= @port %>;
+}
+
+server {
+  listen 81;
+  listen 80; # @todo don't listen on 80
+  server_name _; # @todo use vhosts
+
+  root <%= @app_path %>/current/public;
+
+  location @app_<%= @app_name %> {
+    proxy_set_header  X-Real-IP         $remote_addr;
+    proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header  Host              $http_host;
+    proxy_set_header  X-Forwarded-Proto $scheme;
+
+    proxy_redirect off;
+    proxy_max_temp_file_size 0;
+    proxy_pass http://<%= @app_name %>_http;
+  }
+
+  location / {
+    if (-f $document_root/system/maintenance.html) { return 503; }
+    try_files $uri $uri/index.html $uri.html @app_<%= @app_name %>;
+  }
+}
