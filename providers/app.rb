@@ -14,7 +14,7 @@ action :create do
     source "app_control.erb"
     variables(
       jetty_runner: new_resource.data_path + "/shared/jetty-runner.jar",
-      war: new_resource.data_path + "/shared/deploy.war",
+      war: new_resource.data_path + "/current/deploy.war",
       data_path: new_resource.data_path,
       port: new_resource.port,
     )
@@ -33,13 +33,6 @@ action :create do
   end
 
   cookbook_file new_resource.data_path + "/shared/jetty-runner.jar" do
-    cookbook 'jetty'
-    backup false
-    mode 00644
-  end
-
-  # TODO: Actual deploys
-  cookbook_file new_resource.data_path + "/shared/deploy.war" do
     cookbook 'jetty'
     backup false
     mode 00644
