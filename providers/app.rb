@@ -29,7 +29,7 @@ action :create do
       app_path: new_resource.data_path,
       port: new_resource.port,
     )
-    notifies :restart, "service[nginx]"
+    notifies :reload, "service[nginx]"
   end
 
   cookbook_file new_resource.data_path + "/shared/jetty-runner.jar" do
