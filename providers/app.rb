@@ -1,14 +1,15 @@
 action :create do
 #  template node[:nginx][:app_configs] + "/#{new_resource.app}.conf" do
 #  end
+  r = []
 
   # TODO: Should be template
-  template new_resource.data_path + "/shared/config/env" do
+  r << template(new_resource.data_path + "/shared/config/env") do
     cookbook 'jetty'
     mode 00644
   end
 
-  template "/engineyard/bin/app_#{new_resource.app}" do
+  r << template("/engineyard/bin/app_#{new_resource.app}") do
     cookbook 'jetty'
     mode 00755
     source "app_control.erb"
@@ -20,7 +21,7 @@ action :create do
     )
   end
 
-  template "/etc/nginx/servers/#{new_resource.app}.conf" do
+  r << template("/etc/nginx/servers/#{new_resource.app}.conf") do
     cookbook 'jetty'
     mode 00644
     source "nginx.conf.erb"
@@ -32,9 +33,11 @@ action :create do
     notifies :reload, "service[nginx]"
   end
 
-  cookbook_file new_resource.data_path + "/shared/jetty-runner.jar" do
+  r << cookbook_file(new_resource.data_path + "/shared/jetty-runner.jar") do
     cookbook 'jetty'
     backup false
     mode 00644
   end
+
+  new_resource.updated_by_last_action r.any?(&:updated_by_last_action?)
 end
