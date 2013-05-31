@@ -1,6 +1,4 @@
 action :create do
-#  template node[:nginx][:app_configs] + "/#{new_resource.app}.conf" do
-#  end
   r = []
 
   # TODO: Should be template
@@ -21,16 +19,17 @@ action :create do
     )
   end
 
-  r << template("/etc/nginx/servers/#{new_resource.app}.conf") do
-    cookbook 'jetty'
-    mode 00644
-    source "nginx.conf.erb"
-    variables(
-      app_name: new_resource.app,
-      app_path: new_resource.data_path,
-      port: new_resource.port,
-    )
-    notifies :reload, "service[nginx]"
+  r << nginx_rproxy("server_#{new_resource.app}") do
+    app_name new_resource.app
+    data_path new_resource.data_path
+    upstream_ports [new_resource.port]
+    listen 81 # where does this come from in production, dna?
+  end
+
+  r << nginx_rproxy("server_#{new_resource.app}_https") do
+    data_path new_resource.data_path
+    upstream_ports [new_resource.port]
+    listen 444
   end
 
   r << cookbook_file(new_resource.data_path + "/shared/jetty-runner.jar") do
