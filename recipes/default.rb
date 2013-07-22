@@ -23,16 +23,7 @@ when "centos","redhat","fedora"
   include_recipe "jpackage"
 end
 
-jetty_pkgs = value_for_platform(
-  ["debian","ubuntu"] => {
-    "default" => ["jetty","libjetty-extra"]
-  },
-  ["centos","redhat","fedora"] => {
-    "default" => ["jetty6","jetty6-jsp-2.1","jetty6-management"]
-  },
-  "default" => ["jetty"]
-)
-jetty_pkgs.each do |pkg|
+node["jetty"]["packages"].each do |pkg|
   package pkg do
     action :install
   end
@@ -58,12 +49,10 @@ template "/etc/default/jetty" do
   notifies :restart, "service[jetty]"
 end
 
-template "/etc/jetty/jetty.xml" do
+template "#{node["jetty"]["config_dir"]}/jetty.xml" do
   source "jetty.xml.erb"
   owner "root"
   group "root"
   mode "0644"
   notifies :restart, "service[jetty]"
 end
-
-
