@@ -32,12 +32,12 @@ end
 service "jetty" do
   case node["platform"]
   when "centos","redhat","fedora"
-    service_name "jetty6"
+    service_name "jetty#{node["jetty"]["major"]}"
     supports :restart => true
   when "debian","ubuntu"
     service_name "jetty"
     supports :restart => true, :status => true
-    action [:enable, :start]
+    action :enable
   end
 end
 
@@ -50,7 +50,7 @@ template "/etc/default/jetty" do
 end
 
 template "#{node["jetty"]["config_dir"]}/jetty.xml" do
-  source "jetty.xml.erb"
+  source "jetty#{node["jetty"]["major"]}.xml.erb"
   owner "root"
   group "root"
   mode "0644"

@@ -23,10 +23,13 @@ default["jetty"]["jetty_args"] = ""
 default["jetty"]["java_options"] = "-Xmx256m -Djava.awt.headless=true"
 default["jetty"]["cargo"]["username"] = "cargo"
 default["jetty"]["cargo"]["jetty6"]["source"]["url"] = "http://repo1.maven.org/maven2/org/codehaus/cargo/cargo-jetty-6-and-earlier-deployer/1.2.2/cargo-jetty-6-and-earlier-deployer-1.2.2.war"
+default["jetty"]["cargo"]["jetty8"]["source"]["url"] = "http://repo1.maven.org/maven2/org/codehaus/cargo/cargo-jetty-7-and-onwards-deployer/1.4.3/cargo-jetty-7-and-onwards-deployer-1.4.3.war"
 default["jetty"]["cargo"]["jetty6"]["source"]["checksum"] = "34ea6285c48c31e579aee69ba138cf94015070aacafc1a993f37a9e6534fe064"
+default["jetty"]["cargo"]["jetty8"]["source"]["checksum"] = "2e46c009954d469606381d1d74c7c917f47b05afcfbc68b0dae4fb38bee92832"
 
 case platform
 when "centos","redhat","fedora","amazon","scientific"
+  default["jetty"]["major"] = "6"
   default["jetty"]["packages"] = ["jetty6","jetty6-jsp-2.1","jetty6-management"]
 
   default["jetty"]["user"] = "root"
@@ -38,6 +41,7 @@ when "centos","redhat","fedora","amazon","scientific"
   default["jetty"]["context_dir"] = "/srv/jetty6/contexts"
   default["jetty"]["webapp_dir"] = "/srv/jetty6/webapps"
 when "debian","ubuntu"
+  default["jetty"]["major"] = "8"
   default["jetty"]["packages"] = ["jetty","libjetty-extra"]
 
   default["jetty"]["user"] = "jetty"
@@ -49,6 +53,7 @@ when "debian","ubuntu"
   default["jetty"]["context_dir"] = "/etc/jetty/contexts"
   default["jetty"]["webapp_dir"] = "/var/lib/jetty/webapps"
 else
+  default["jetty"]["major"] = "8"
   default["jetty"]["packages"] = ["jetty"]
 
   default["jetty"]["user"] = "jetty"
@@ -60,3 +65,5 @@ else
   default["jetty"]["context_dir"] = "/etc/jetty/contexts"
   default["jetty"]["webapp_dir"] = "/var/lib/jetty/webapps"
 end
+
+default["jetty"]["cargo"]["war"] = node["jetty"]["cargo"]["jetty#{node["jetty"]["major"]}"]["source"]["url"].split('/').last

@@ -51,7 +51,7 @@ template "/etc/jetty/realm.properties" do
 end
 
 
-web_xml = node['jetty']['webapp_dir'] + "/cargo-jetty-6/WEB-INF/web.xml"
+web_xml = node['jetty']['webapp_dir'] + "/cargo-jetty-#{node["jetty"]["major"]}/WEB-INF/web.xml"
 
 cookbook_file web_xml do
     source "web.xml"
@@ -67,9 +67,9 @@ script "extract war" do
     user "jetty"
     cwd "/usr/share/jetty/webapps/"
     code <<-EOH
-      mkdir cargo-jetty-6
-      cd cargo-jetty-6
-      jar xf ../cargo-jetty-6-and-earlier-deployer-1.2.2.war
+      mkdir cargo-jetty-#{node["jetty"]["major"]}
+      cd cargo-jetty-#{node["jetty"]["major"]}
+      jar xf ../#{node["jetty"]["cargo"]["war"]}
     EOH
     notifies :restart, "service[jetty]"
     action :nothing
@@ -77,9 +77,9 @@ end
 
 
 
-remote_file "/usr/share/jetty/webapps/cargo-jetty-6-and-earlier-deployer-1.2.2.war" do
-    source node['jetty']['cargo']['jetty6']['source']['url']
-    checksum node['jetty']['cargo']['jetty6']['source']['checksum']
+remote_file "/usr/share/jetty/webapps/#{node["jetty"]["cargo"]["war"]}" do
+    source node['jetty']['cargo']["jetty#{node["jetty"]["major"]}"]['source']['url']
+    checksum node['jetty']['cargo']["jetty#{node["jetty"]["major"]}""]['source']['checksum']
     mode 0644
     owner "jetty"
     group "jetty"
